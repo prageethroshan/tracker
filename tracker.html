@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>14-Day Reset Protocol</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0b;
+            --bg-card: #131315;
+            --bg-elevated: #1a1a1d;
+            --accent: #ff3b30;
+            --accent-glow: rgba(255, 59, 48, 0.3);
+            --success: #30d158;
+            --success-glow: rgba(48, 209, 88, 0.3);
+            --warning: #ffd60a;
+            --text-primary: #ffffff;
+            --text-secondary: #8e8e93;
+            --text-muted: #48484a;
+            --border: #2c2c2e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 0%, rgba(255, 59, 48, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(48, 209, 88, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 3rem;
+        }
+
+        .protocol-badge {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: var(--accent);
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid var(--accent);
+            padding: 0.5rem 1.5rem;
+            margin-bottom: 1.5rem;
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+            50% { box-shadow: 0 0 20px 5px var(--accent-glow); }
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3rem, 10vw, 6rem);
+            letter-spacing: 0.05em;
+            line-height: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        h1 span {
+            color: var(--accent);
+        }
+
+        .subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .notebook-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            color: var(--success);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--success);
+            transition: all 0.2s ease;
+        }
+
+        .notebook-link:hover {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 0 20px var(--success-glow);
+        }
+
+        /* Progress Section */
+        .progress-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+        }
+
+        .stat-card.success::before {
+            background: linear-gradient(90deg, var(--success), transparent);
+        }
+
+        .stat-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        /* Day Navigation */
+        .day-nav {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        .day-btn {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .day-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .day-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .day-btn.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .day-btn.completed::after {
+            content: '✓';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: var(--bg-dark);
+            border: 1px solid var(--success);
+            border-radius: 50%;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Day Content */
+        .day-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 2rem;
+        }
+
+        .day-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .day-number {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 4rem;
+            line-height: 1;
+            color: var(--accent);
+        }
+
+        .day-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 0.05em;
+        }
+
+        .day-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Task Sections */
+        .task-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 12px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .task-item:hover {
+            border-color: var(--text-muted);
+        }
+
+        .task-item.completed {
+            border-color: var(--success);
+            background: rgba(48, 209, 88, 0.05);
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .task-item.completed .task-checkbox {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .task-checkbox::after {
+            content: '✓';
+            color: transparent;
+            font-size: 0.8rem;
+            transition: color 0.2s ease;
+        }
+
+        .task-item.completed .task-checkbox::after {
+            color: white;
+        }
+
+        .task-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .task-item.completed .task-text {
+            color: var(--text-secondary);
+        }
+
+        /* Mindset Quote */
+        .mindset-quote {
+            background: linear-gradient(135deg, var(--bg-elevated), var(--bg-card));
+            border-left: 3px solid var(--accent);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .mindset-quote p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-style: italic;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Daily Tracker */
+        .tracker-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        .tracker-row:last-child {
+            border-bottom: none;
+        }
+
+        .tracker-label {
+            color: var(--text-secondary);
+        }
+
+        .tracker-toggle {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tracker-toggle.checked {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .tracker-toggle::after {
+            content: '✓';
+            color: transparent;
+            font-size: 0.7rem;
+        }
+
+        .tracker-toggle.checked::after {
+            color: white;
+        }
+
+        /* Emergency Protocol */
+        .emergency-card {
+            background: linear-gradient(135deg, rgba(255, 59, 48, 0.1), var(--bg-card));
+            border-color: var(--accent);
+        }
+
+        .emergency-card .sidebar-title {
+            color: var(--accent);
+        }
+
+        .emergency-steps {
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+
+        .emergency-steps li {
+            margin-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* Rules Card */
+        .rules-card {
+            background: var(--bg-elevated);
+        }
+
+        .rule-item {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            padding: 0.5rem 0;
+            padding-left: 1rem;
+            border-left: 2px solid var(--border);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Complete Day Button */
+        .complete-day-btn {
+            width: 100%;
+            padding: 1.25rem;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem;
+            letter-spacing: 0.1em;
+            background: var(--accent);
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .complete-day-btn:hover {
+            box-shadow: 0 0 30px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .complete-day-btn:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .complete-day-btn.completed {
+            background: var(--success);
+        }
+
+        /* Reset Button */
+        .reset-btn {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .reset-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .day-content {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="container">
+        <header>
+            <div class="protocol-badge">▲ STRICT DISCIPLINE PROTOCOL</div>
+            <h1>14-DAY <span>RESET</span></h1>
+            <p class="subtitle">Action creates motivation. Small daily discipline beats big future plans. A distracted life destroys potential quietly.</p>
+            <a href="notebook.html" class="notebook-link">📓 OPEN NOTEBOOK →</a>
+        </header>
+
+        <div class="progress-section">
+            <div class="stat-card">
+                <div class="stat-value" id="daysCompleted">0</div>
+                <div class="stat-label">Days Completed</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-value" id="tasksCompleted">0</div>
+                <div class="stat-label">Tasks Done</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="currentStreak">0</div>
+                <div class="stat-label">Current Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completionRate">0%</div>
+                <div class="stat-label">Completion Rate</div>
+            </div>
+        </div>
+
+        <nav class="day-nav" id="dayNav"></nav>
+
+        <div class="main-grid">
+            <div class="day-content" id="dayContent"></div>
+
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <div class="sidebar-title">📋 Daily Tracker</div>
+                    <div class="tracker-row">
+                        <span class="tracker-label">Wake on time</span>
+                        <div class="tracker-toggle" data-tracker="wake" onclick="toggleTracker(this)"></div>
+                    </div>
+                    <div class="tracker-row">
+                        <span class="tracker-label">No social media first 2hrs</span>
+                        <div class="tracker-toggle" data-tracker="social" onclick="toggleTracker(this)"></div>
+                    </div>
+                    <div class="tracker-row">
+                        <span class="tracker-label">Exercise done</span>
+                        <div class="tracker-toggle" data-tracker="exercise" onclick="toggleTracker(this)"></div>
+                    </div>
+                    <div class="tracker-row">
+                        <span class="tracker-label">Main task completed</span>
+                        <div class="tracker-toggle" data-tracker="task" onclick="toggleTracker(this)"></div>
+                    </div>
+                    <div class="tracker-row">
+                        <span class="tracker-label">Arrived early</span>
+                        <div class="tracker-toggle" data-tracker="early" onclick="toggleTracker(this)"></div>
+                    </div>
+                    <div class="tracker-row">
+                        <span class="tracker-label">Planned tomorrow</span>
+                        <div class="tracker-toggle" data-tracker="planned" onclick="toggleTracker(this)"></div>
+                    </div>
+                </div>
+
+                <div class="sidebar-card emergency-card">
+                    <div class="sidebar-title">🚨 Emergency Protocol</div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">When caught doomscrolling:</p>
+                    <ol class="emergency-steps">
+                        <li>Put phone down immediately</li>
+                        <li>Stand up</li>
+                        <li>Drink water</li>
+                        <li>Walk for 2 minutes</li>
+                        <li>Return to next planned task</li>
+                    </ol>
+                </div>
+
+                <div class="sidebar-card rules-card">
+                    <div class="sidebar-title">⚡ Daily Rules</div>
+                    <div class="rule-item">No social media first 2 hours</div>
+                    <div class="rule-item">Phone away while working</div>
+                    <div class="rule-item">Only 3 tasks per day</div>
+                    <div class="rule-item">Arrive 10 minutes early</div>
+                    <div class="rule-item">No screens after 10 PM</div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // Day data based on the 14-day plan
+        const dayData = {
+            1: {
+                title: "Cut the Poison",
+                subtitle: "Today is about stopping the bleeding.",
+                tasks: [
+                    { section: "Setup", items: [
+                        "Delete or log out from your most addictive social media apps",
+                        "Turn off all non-essential notifications",
+                        "Remove shortcuts to distracting sites/apps",
+                        "Create notebook page: '14-Day Reset'"
+                    ]},
+                    { section: "Reflection", items: [
+                        "Write 3 areas damaged by current habits (work, health, punctuality)"
+                    ]},
+                    { section: "Physical", items: [
+                        "Walk 15 minutes"
+                    ]},
+                    { section: "Work", items: [
+                        "Finish ONE delayed task you've been avoiding"
+                    ]},
+                    { section: "Night", items: [
+                        "Write tomorrow's top 3 tasks"
+                    ]}
+                ],
+                quote: "Today is Day 1. No more excuses."
+            },
+            2: {
+                title: "Rebuild Control",
+                subtitle: "Prove you can control the first part of the day.",
+                tasks: [
+                    { section: "Rule", items: [
+                        "No social media until after your first important task"
+                    ]},
+                    { section: "Physical", items: [
+                        "Walk 20 minutes"
+                    ]},
+                    { section: "Work", items: [
+                        "25 minutes focused work → 5 min rest → Repeat 3 times (Pomodoro)"
+                    ]},
+                    { section: "Punctuality", items: [
+                        "Prepare everything for tomorrow before sleeping"
+                    ]}
+                ],
+                quote: "Control the morning, control the day."
+            },
+            3: {
+                title: "Stop Living in Your Head",
+                subtitle: "You have many ideas. Today is about execution.",
+                tasks: [
+                    { section: "Planning", items: [
+                        "Write ALL your ideas on one page",
+                        "Choose only ONE active goal for the next 14 days",
+                        "Ignore the rest for now"
+                    ]},
+                    { section: "Physical", items: [
+                        "15 min walk + 10 squats + 10 wall push-ups + 20-sec plank"
+                    ]},
+                    { section: "Work", items: [
+                        "Create one VISIBLE output for your chosen goal (document, outline, email, etc.)"
+                    ]}
+                ],
+                quote: "Something must EXIST by the end of today."
+            },
+            4: {
+                title: "Discipline Over Mood",
+                subtitle: "Today you work even if you don't feel like it.",
+                tasks: [
+                    { section: "Morning", items: [
+                        "Start first work session within 60 minutes of waking"
+                    ]},
+                    { section: "Work", items: [
+                        "90 minutes focused work total (can be 3 × 30 min blocks)"
+                    ]},
+                    { section: "Physical", items: [
+                        "Walk 20 minutes"
+                    ]},
+                    { section: "Self-Control", items: [
+                        "No random YouTube or short videos before evening"
+                    ]}
+                ],
+                quote: "Motivation follows action, not the other way around."
+            },
+            5: {
+                title: "Fix Your Environment",
+                subtitle: "Your environment is either helping or destroying you.",
+                tasks: [
+                    { section: "Environment", items: [
+                        "Clean your desk completely",
+                        "Remove visual clutter",
+                        "Keep only what's needed for current work",
+                        "Stage: charger, notebook, pen, water ready"
+                    ]},
+                    { section: "Physical", items: [
+                        "20 min walk + 10 squats × 2 + 10 wall push-ups × 2"
+                    ]},
+                    { section: "Work", items: [
+                        "Finish one task with a deadline or practical value"
+                    ]}
+                ],
+                quote: "A cluttered space creates a cluttered mind."
+            },
+            6: {
+                title: "Repair Punctuality",
+                subtitle: "Become a person who respects time.",
+                tasks: [
+                    { section: "Punctuality System", items: [
+                        "Set every appointment with FAKE earlier time (15 min buffer)",
+                        "Prepare everything 30 minutes earlier than usual"
+                    ]},
+                    { section: "Work", items: [
+                        "Complete one medium task FULLY, not partially"
+                    ]},
+                    { section: "Physical", items: [
+                        "Walk 25 minutes"
+                    ]},
+                    { section: "Reflection", items: [
+                        "Write why lateness is harming your identity and reputation"
+                    ]}
+                ],
+                quote: "Early is on time. On time is late."
+            },
+            7: {
+                title: "First Review",
+                subtitle: "One week in. No excuses. Honest assessment.",
+                tasks: [
+                    { section: "Morning Review", items: [
+                        "Write: When did I lose time most?",
+                        "Write: What triggered scrolling?",
+                        "Write: What task did I avoid most?",
+                        "Write: What improved?"
+                    ]},
+                    { section: "Adjust", items: [
+                        "Block your biggest distraction more aggressively",
+                        "Reduce task list if unrealistic",
+                        "Keep only what worked"
+                    ]},
+                    { section: "Physical", items: [
+                        "Walk 25 minutes"
+                    ]},
+                    { section: "Work", items: [
+                        "2 hours total focused work today"
+                    ]}
+                ],
+                quote: "Week 1 complete. You've proven you can do this."
+            },
+            8: {
+                title: "Raise the Standard",
+                subtitle: "No restarting softly. Continue harder.",
+                tasks: [
+                    { section: "New Rules", items: [
+                        "No phone during meals",
+                        "No checking messages during deep work blocks"
+                    ]},
+                    { section: "Physical", items: [
+                        "25 min walk + 12 squats × 2 + 12 wall push-ups × 2 + 25-sec plank × 2"
+                    ]},
+                    { section: "Work", items: [
+                        "Start with the HARDEST task, not the easiest"
+                    ]}
+                ],
+                quote: "I do hard things before I do easy things."
+            },
+            9: {
+                title: "Train the Ability to Start",
+                subtitle: "Your real problem may not be working—it may be starting.",
+                tasks: [
+                    { section: "The 5-Minute Rule", items: [
+                        "When resisting a task, say 'Only 5 minutes' and begin immediately",
+                        "Starting usually kills the resistance"
+                    ]},
+                    { section: "Physical", items: [
+                        "Walk 20 minutes"
+                    ]},
+                    { section: "Work", items: [
+                        "Start 3 tasks using the 5-minute rule",
+                        "At least 1 must be completed fully"
+                    ]}
+                ],
+                quote: "The hardest part is always the first step."
+            },
+            10: {
+                title: "Eliminate Passive Living",
+                subtitle: "Today you stop drifting.",
+                tasks: [
+                    { section: "Morning Priority", items: [
+                        "Write: What MUST be done today",
+                        "Write: What can wait",
+                        "Write: What should be ignored"
+                    ]},
+                    { section: "Physical", items: [
+                        "Walk 30 minutes"
+                    ]},
+                    { section: "Work", items: [
+                        "2 hours focused work total",
+                        "NO multitasking"
+                    ]},
+                    { section: "Evening", items: [
+                        "Prepare tomorrow's schedule HOUR BY HOUR"
+                    ]}
+                ],
+                quote: "Not everything deserves your energy."
+            },
+            11: {
+                title: "Build Self-Respect",
+                subtitle: "Today is about keeping promises to yourself.",
+                tasks: [
+                    { section: "Your 3 Promises", items: [
+                        "Promise 1: I will wake at ___ (set your time)",
+                        "Promise 2: I will walk for ___ minutes",
+                        "Promise 3: I will finish ___ task"
+                    ]},
+                    { section: "Mission", items: [
+                        "KEEP ALL 3 PROMISES—no exceptions"
+                    ]},
+                    { section: "Physical", items: [
+                        "25 min walk + 15 squats × 2 + 10 push-ups × 2 + 30-sec plank × 2"
+                    ]}
+                ],
+                quote: "Self-trust is built by keeping small promises."
+            },
+            12: {
+                title: "Finish, Don't Merely Start",
+                subtitle: "You may start many things but finish little.",
+                tasks: [
+                    { section: "No New Starts", items: [
+                        "No new projects today",
+                        "No new ideas today",
+                        "No reorganizing",
+                        "No 'research' as escape"
+                    ]},
+                    { section: "Work", items: [
+                        "Complete ONE unfinished task from earlier days"
+                    ]},
+                    { section: "Physical", items: [
+                        "Walk 30 minutes"
+                    ]},
+                    { section: "Reflection", items: [
+                        "Write: 'Why unfinished work is draining my confidence'"
+                    ]}
+                ],
+                quote: "A half-finished task is a weight you carry everywhere."
+            },
+            13: {
+                title: "Simulate Your Better Life",
+                subtitle: "Today, behave like the disciplined version of yourself.",
+                tasks: [
+                    { section: "Be That Person", items: [
+                        "Wake on time",
+                        "Dress properly",
+                        "Move early",
+                        "Begin work early",
+                        "Speak less about plans",
+                        "Finish what you start",
+                        "Arrive early",
+                        "Keep your word"
+                    ]},
+                    { section: "Physical", items: [
+                        "30 minutes movement total"
+                    ]},
+                    { section: "Work", items: [
+                        "Complete one task that makes you PROUD"
+                    ]}
+                ],
+                quote: "Today is practice for the identity you want."
+            },
+            14: {
+                title: "Lock the Change",
+                subtitle: "This day decides whether 14 days become memory or turning point.",
+                tasks: [
+                    { section: "Morning Review", items: [
+                        "Write: What improved in me?",
+                        "Write: Which habits helped most?",
+                        "Write: Which distractions still control me?",
+                        "Write: What must continue daily?"
+                    ]},
+                    { section: "Your Permanent 5 Rules", items: [
+                        "Fixed wake-up time",
+                        "No social media first 2 hours",
+                        "Daily movement",
+                        "Top 3 tasks only",
+                        "Prepare tomorrow tonight"
+                    ]},
+                    { section: "Work", items: [
+                        "Finish one meaningful task fully"
+                    ]},
+                    { section: "Physical", items: [
+                        "Walk 30 minutes"
+                    ]},
+                    { section: "Final Commitment", items: [
+                        "Write: 'I do not need a perfect life. I need disciplined days.'"
+                    ]}
+                ],
+                quote: "Day 14 complete. This is not the end—it's the beginning."
+            }
+        };
+
+        // State
+        let currentDay = 1;
+        let progress = loadProgress();
+
+        function loadProgress() {
+            const saved = localStorage.getItem('resetProgress');
+            return saved ? JSON.parse(saved) : {
+                completedDays: [],
+                taskStates: {},
+                trackerStates: {},
+                startDate: new Date().toISOString()
+            };
+        }
+
+        function saveProgress() {
+            localStorage.setItem('resetProgress', JSON.stringify(progress));
+            updateStats();
+        }
+
+        function renderDayNav() {
+            const nav = document.getElementById('dayNav');
+            nav.innerHTML = '';
+            
+            for (let i = 1; i <= 14; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'day-btn';
+                btn.textContent = i;
+                
+                if (i === currentDay) btn.classList.add('active');
+                if (progress.completedDays.includes(i)) btn.classList.add('completed');
+                
+                btn.onclick = () => selectDay(i);
+                nav.appendChild(btn);
+            }
+        }
+
+        function selectDay(day) {
+            currentDay = day;
+            renderDayNav();
+            renderDayContent();
+            updateTrackers();
+        }
+
+        function renderDayContent() {
+            const content = document.getElementById('dayContent');
+            const data = dayData[currentDay];
+            
+            let tasksHTML = '';
+            data.tasks.forEach(section => {
+                tasksHTML += `
+                    <div class="task-section">
+                        <div class="section-label">${section.section}</div>
+                        <div class="task-list">
+                            ${section.items.map((item, idx) => {
+                                const taskId = `day${currentDay}-${section.section}-${idx}`;
+                                const isCompleted = progress.taskStates[taskId];
+                                return `
+                                    <div class="task-item ${isCompleted ? 'completed' : ''}" 
+                                         onclick="toggleTask('${taskId}', this)">
+                                        <div class="task-checkbox"></div>
+                                        <span class="task-text">${item}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            const isCompleted = progress.completedDays.includes(currentDay);
+
+            content.innerHTML = `
+                <div class="day-header">
+                    <div class="day-number">${String(currentDay).padStart(2, '0')}</div>
+                    <div>
+                        <div class="day-title">${data.title}</div>
+                        <div class="day-subtitle">${data.subtitle}</div>
+                    </div>
+                </div>
+                ${tasksHTML}
+                <div class="mindset-quote">
+                    <p>"${data.quote}"</p>
+                </div>
+                <button class="complete-day-btn ${isCompleted ? 'completed' : ''}" 
+                        onclick="completeDay()"
+                        ${isCompleted ? 'disabled' : ''}>
+                    ${isCompleted ? '✓ DAY COMPLETED' : 'MARK DAY AS COMPLETE'}
+                </button>
+                <button class="reset-btn" onclick="resetProgress()">RESET ALL PROGRESS</button>
+            `;
+        }
+
+        function toggleTask(taskId, element) {
+            progress.taskStates[taskId] = !progress.taskStates[taskId];
+            element.classList.toggle('completed');
+            saveProgress();
+        }
+
+        function toggleTracker(element) {
+            const tracker = element.dataset.tracker;
+            const key = `day${currentDay}-tracker-${tracker}`;
+            
+            if (!progress.trackerStates[key]) {
+                progress.trackerStates[key] = true;
+                element.classList.add('checked');
+            } else {
+                progress.trackerStates[key] = false;
+                element.classList.remove('checked');
+            }
+            
+            saveProgress();
+        }
+
+        function updateTrackers() {
+            document.querySelectorAll('.tracker-toggle').forEach(toggle => {
+                const tracker = toggle.dataset.tracker;
+                const key = `day${currentDay}-tracker-${tracker}`;
+                
+                if (progress.trackerStates[key]) {
+                    toggle.classList.add('checked');
+                } else {
+                    toggle.classList.remove('checked');
+                }
+            });
+        }
+
+        function completeDay() {
+            if (!progress.completedDays.includes(currentDay)) {
+                progress.completedDays.push(currentDay);
+                saveProgress();
+                renderDayNav();
+                renderDayContent();
+            }
+        }
+
+        function updateStats() {
+            const daysCompleted = progress.completedDays.length;
+            const totalTasks = Object.values(progress.taskStates).filter(v => v).length;
+            
+            // Calculate streak
+            let streak = 0;
+            const sorted = [...progress.completedDays].sort((a, b) => b - a);
+            for (let i = 0; i < sorted.length; i++) {
+                if (i === 0 || sorted[i] === sorted[i-1] - 1) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            
+            // Completion rate
+            const totalPossibleTasks = Object.keys(dayData).reduce((sum, day) => {
+                return sum + dayData[day].tasks.reduce((s, section) => s + section.items.length, 0);
+            }, 0);
+            const rate = totalPossibleTasks > 0 ? Math.round((totalTasks / totalPossibleTasks) * 100) : 0;
+
+            document.getElementById('daysCompleted').textContent = daysCompleted;
+            document.getElementById('tasksCompleted').textContent = totalTasks;
+            document.getElementById('currentStreak').textContent = streak;
+            document.getElementById('completionRate').textContent = rate + '%';
+        }
+
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset ALL progress? This cannot be undone.')) {
+                progress = {
+                    completedDays: [],
+                    taskStates: {},
+                    trackerStates: {},
+                    startDate: new Date().toISOString()
+                };
+                saveProgress();
+                renderDayNav();
+                renderDayContent();
+                updateTrackers();
+            }
+        }
+
+        // Initialize
+        renderDayNav();
+        renderDayContent();
+        updateStats();
+        updateTrackers();
+    </script>
+</body>
+</html>
